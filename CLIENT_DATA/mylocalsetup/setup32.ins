@@ -1,0 +1,150 @@
+; ----------------------------------------------------------------
+; Copyright (c) uib gmbh (www.uib.de)
+; This sourcecode is owned by uib
+; and published under the Terms of the General Public License.
+; credits: http://www.opsi.org/en/credits/
+; ----------------------------------------------------------------
+
+;****************************************
+; SETUPTYPE      custom
+;****************************************
+; PRODUCTID      ica-account
+; SETUPFILE      custom	
+;****************************************
+; LICENSE         false    
+; PRODUCTDESC    Create a standard ICA local account
+
+; PRODUCTNAME    AccountMan
+; PRODUCTSIZE    9 MB
+; PRODUCTVER     9
+;****************************************
+; SETUPSCRIPT    setup32.ins
+; UNINSSCRIPT    uninstall32.ins
+;****************************************
+; MSIID          
+; USE-MST        
+; INSTALLDIR     c:\users
+;****************************************
+; TIMESTAMP      9/25/2018 14:11:02
+;****************************************
+
+[Actions]
+requiredWinstVersion >= "4.11.4.3"
+ScriptErrorMessages = false
+
+DefVar $SetupType$
+DefVar $ProductId$ 
+DefVar $Setupfile$ 
+DefVar $InstallDir$
+DefVar $MinimumSpace$
+DefVar $ExitCode$
+DefVar $ErrorMsg$
+DefVar $LicenseRequired$
+DefVar $LicenseKey$
+DefVar $LicensePool$
+DefVar $MsiId$
+DefVar $NsisInstallBatch$
+DefVar $LogDir$
+DefVar $PROP_account$
+DefVar $PROP_password$
+DefVar $ProductName$
+DefVar $ProductName2$
+
+Set $LogDir$ = "%opsiLogDir%"
+set $PROP_account$ = GetProductProperty("username","")
+set $PROP_password$ = GetProductProperty("password","")
+
+include_append "%ScriptPath%\check_nsis_exitcode.opsiscript"
+
+; ----------------------------------------------------------------
+Set $SetupType$       = "custom"
+; ----------------------------------------------------------------
+
+; $ProductId$ is the name of the product in opsi, only lower letters, no umlauts, no white spaces, use '-' as a seperator
+Set $ProductId$       = "ica-account"
+Set $ProductName$       = "ICA user account management"
+; the path where we find the product after the installation
+Set $InstallDir$      = "c:\users"
+Set $LicenseRequired$ = "false"
+Set $MsiId$           = ""
+Set $MinimumSpace$    = "9 MB"
+; ----------------------------------------------------------------
+; ----------------------------------------------------------------
+
+if not(HasMinimumSpace ("%SystemDrive%", $MinimumSpace$))
+   LogError "Not enough space on %SystemDrive%, " + $MinimumSpace$ + " on drive %SystemDrive% needed for " + $ProductId$
+   isFatalError "No Space"
+   ; Stop process and set installation status to failed
+else
+   comment "Show product picture"
+   ShowBitmap "%ScriptPath%\" + $ProductId$ + ".png" $ProductId$
+
+   if FileExists("%ScriptPath%\delsub.ins")
+      comment "Start uninstall sub section"
+      Sub "%ScriptPath%\delsub.ins"
+   endif
+   
+   Message "Installing " + $ProductId$ + " ..."
+   
+
+; Install ============================================================
+   
+      comment "Start setup program"
+      ChangeDirectory "%SCRIPTPATH%"
+      ;----------------------------------------------
+      Winbatch_install
+      ;----------------------------------------------
+      Sub_check_exitcode
+;      ExitWindows /Reboot
+
+; end if on files space   
+endif
+
+; ----------------------------------------------------------------
+; files section
+; ----------------------------------------------------------------
+
+[Files_install_32]
+; Example of recursively copying some files into the installation directory:
+;
+ copy -s "%ScriptPath%\k9-webprotection.exe" "$InstallDir$"
+
+; ----------------------------------------------------------------
+; links section
+; ----------------------------------------------------------------
+
+[LinkFolder_install]
+; Example of deleting a folder from AllUsers startmenu:
+;
+ set_basefolder common_programs
+ delete_subfolder $ProductName$
+;
+; Example of creating an shortcut to the installed exe in AllUsers startmenu:
+;
+ set_basefolder common_programs
+ set_subfolder $ProductName$
+;
+ set_link
+ 	name: Install K9 protection
+ 	target: $InstallDir$\k9-webprotection.exe
+; 	parameters:
+ 	working_dir: $InstallDir$
+; 	icon_file: $InstallDir$\k9-webprotection.exe
+; 	icon_index: 1
+ end_link
+;
+
+; ----------------------------------------------------------------
+; install section
+; ----------------------------------------------------------------
+
+[Winbatch_install]
+; Scriptable Install System 
+;  "%ScriptPath%\k-9install.exe" $LicenseKey$ "%ScriptPath%\k9-webprotection.exe"
+  "NET USER" $PROP_account$ $PROP_password$ "/ADD"
+; ----------------------------------------------------------------
+
+
+; ----------------------------------------------------------------
+; ----------------------------------------------------------------
+

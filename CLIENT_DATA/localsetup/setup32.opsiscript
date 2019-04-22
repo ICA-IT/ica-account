@@ -1,0 +1,77 @@
+; Copyright (c) uib gmbh (www.uib.de)
+; This sourcecode is owned by uib
+; and published under the Terms of the General Public License.
+; credits: http://www.opsi.org/credits/
+
+
+[Actions]
+requiredWinstVersion >= 4.11.4.12
+setLogLevel=7
+ScriptErrorMessages=off
+ExitWindows /Reboot
+DefVar $LogDir$
+Set $LogDir$ = "%opsiLogDir%"
+DefVar $ProductId$
+DefVar $MinimumSpace$
+DefVar $NewExe$
+DefVar $InstallDir$
+DefVar $ExitCode$
+DefVar $LicenseRequired$
+DefVar $LicenseKey$
+DefVar $LicensePool$
+
+DefVar $PROP_account$
+DefVar $PROP_password$
+Set $LogDir$ = "%opsiLogDir%"
+set $PROP_account$ = GetProductProperty("username","")
+set $PROP_password$ = GetProductProperty("password","")
+
+; ----------------------------------------------------------------
+; - Please edit the following values                             -
+; ----------------------------------------------------------------
+Set $ProductId$       = "ica-account"
+Set $MinimumSpace$    = "8 MB"
+Set $InstallDir$      = "c:\Users"
+Set $NewExe$          = $InstallDir$ + "\" + $PROP_account$ + "\"
+Set $LicenseRequired$ = "false"
+Set $LicensePool$     = "p_" + $ProductId$
+; ----------------------------------------------------------------
+
+if not(HasMinimumSpace ("%SystemDrive%", $MinimumSpace$))
+	LogError "Not enough space on %SystemDrive%, " + $MinimumSpace$ + " on drive %SystemDrive% needed for " + $ProductId$
+	ExitWindows /Reboot
+	isFatalError
+	; Stop process and set installation status to failed
+else
+   comment "Show product picture"
+   ShowBitmap "%ScriptPath%\" + $ProductId$ + ".png" $ProductId$
+
+   if FileExists("%ScriptPath%\delsub.ins")
+      comment "Start uninstall sub section"
+;      Sub "%ScriptPath%\delsub.ins"
+   endif
+
+   Message "Installing " + $ProductId$ + " ..."
+
+
+; Install ============================================================
+
+      comment "Start setup program"
+      ChangeDirectory "%SCRIPTPATH%"
+      ;----------------------------------------------
+;      Winbatch_install
+      Files_uninstall
+      ;----------------------------------------------
+;      Sub_check_exitcode
+;      ExitWindows /Reboot
+
+; end if on files space
+endif
+
+
+;[Winbatch_install]
+[Files_uninstall]
+; "%ScriptPath%\setup.exe" /sp- /silent /norestart
+;  NET USER $PROP_account$ $PROP_password$ /ADD
+del -sf $NewExe$
+

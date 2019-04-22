@@ -1,0 +1,66 @@
+; Copyright (c) uib gmbh (www.uib.de)
+; This sourcecode is owned by uib gmbh
+; and published under the Terms of the General Public License.
+; credits: http://www.opsi.org/credits/
+
+
+[Actions]
+requiredWinstVersion >= 4.11.4.12
+setLogLevel=7
+ScriptErrorMessages=off
+DefVar $TEMP$
+Set $TEMP$ = "%opsiTmpDir%"
+DefVar $LogDir$
+Set $LogDir$ = "%opsiLogDir%"
+DefVar $ExitCode$
+DefVar $ProductId$
+DefVar $InstallDir$
+DefVar $LicenseRequired$
+DefVar $LicensePool$
+
+; ----------------------------------------------------------------
+; - Please edit the following values                             -
+; ----------------------------------------------------------------
+Set $ProductId$       = "opsi-template"
+Set $InstallDir$      = "%ProgramFilesDir%\" + $ProductId$
+Set $LicenseRequired$ = "false"
+Set $LicensePool$     = "p_" + $ProductId$
+; ----------------------------------------------------------------
+
+
+comment "Show product picture"
+ShowBitmap "%ScriptPath%\" + $ProductId$ + ".png" $ProductId$
+
+Message "Uninstalling " + $ProductId$ + " ..."
+
+if FileExists("%ScriptPath%\delsub.opsiscript")
+	comment "Start uninstall sub section"
+	Sub "%ScriptPath%\delsub.opsiscript"
+endif
+
+if not ($LicenseRequired$ = "false")
+	comment "Licensing required, free license used"
+	Sub_free_license
+endif
+
+[Sub_free_license]
+if opsiLicenseManagementEnabled
+	comment "License management is enabled and will be used"
+
+	comment "Trying to free license used for the product"
+	DefVar $result$
+	Set $result$ = FreeLicense($LicensePool$)
+	; If there is an assignment of a license pool to the product, it is possible to use
+	; Set $result$ = FreeLicense("", $ProductId$)
+	;
+	; If there is an assignment of a license pool to a windows software id, it is possible to use
+	; DefVar $WindowsSoftwareId$
+	; $WindowsSoftwareId$ = "..."
+	; set $result$ = FreeLicense("", "", $WindowsSoftwareId$)
+else
+	LogError "Error: licensing required, but license management not enabled"
+	isFatalError
+endif
+
+
+

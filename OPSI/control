@@ -1,0 +1,84 @@
+[Package]
+version: 1
+depends: 
+
+[Product]
+type: localboot
+id: ica-account
+name: AccountMan
+description: Create a standard ICA local account
+advice: 
+version: 1.0
+priority: 0
+licenseRequired: False
+productClasses: 
+setupScript: setup32.ins
+uninstallScript: uninstall32.ins
+updateScript: 
+alwaysScript: 
+onceScript: 
+customScript: 
+userLoginScript: 
+
+[ProductProperty]
+type: unicode
+name: username
+multivalue: False
+editable: True
+description: Local account name to manage
+values: ["student"]
+default: ["student"]
+
+[ProductProperty]
+type: unicode
+name: password
+multivalue: False
+editable: True
+description: New account password
+values: ["student"]
+default: ["student"]
+
+[ProductProperty]
+type: unicode
+name: debug
+multivalue: True
+editable: False
+description: debug option
+values: ["false", "true"]
+default: ["false"]
+
+[ProductProperty]
+type: unicode
+name: keepfiles
+multivalue: True
+editable: False
+description: Keep all user files when deleting account
+values: ["false", "true"]
+default: ["false"]
+
+[ProductProperty]
+type: unicode
+name: administrator
+multivalue: True
+editable: False
+description: Make new user a member of Administrators local group
+values: ["false", "true"]
+default: ["false"]
+
+[ProductProperty]
+type: unicode
+name: reboot
+multivalue: True
+editable: False
+description: Reboot the computer after adding/deleting account
+values: ["false", "true"]
+default: ["false"]
+
+[Changelog]
+ica-account (1.0-1) testing; urgency=low
+
+  * Initial package
+
+ -- John Kuras <jkuras@islandchristianacademy.com>  Tue, 25 Sep 2018 17:16:43 +0000
+
+

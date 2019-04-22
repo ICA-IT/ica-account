@@ -1,0 +1,9 @@
+[actions]
+setloglevel = 8
+Defvar $tmp$
+
+set $tmp$ = GetShortWinPathName("%ProgramFiles32Dir%")
+set $tmp$ = GetShortWinPathName("huhu")
+
+[stop]
+
